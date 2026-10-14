@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iCarly.com - Ao Vivo</title>
+    <title>MyBroadcast</title>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
         :root {
@@ -147,7 +147,7 @@
     <header>
         <div class="brand">
             <div class="brand-logo"></div>
-            <span>iCarly.com - Ao Vivo</span>
+            <span>Ao Vivo</span>
         </div>
         <div class="status-pill" id="statusPill">
             <span class="status-dot"></span>
@@ -191,9 +191,15 @@
             }
         }
 
-        // Conectar automaticamente ao canal do Host
-        window.addEventListener('load', () => {
-            const viewerPeer = new Peer();
+        function connectToStream() {
+            placeholderText.innerHTML = "Conectando à transmissão ao vivo... <br><button onclick='connectToStream()' style='margin-top:10px; padding:6px 12px; background:var(--accent-purple); color:#fff; border:none; border-radius:6px; cursor:pointer;'>Tentar de novo</button>";
+
+            // Conexão segura compatível com o HTTPS do GitHub Pages
+            const viewerPeer = new Peer({
+                host: '0.peerjs.com',
+                port: 443,
+                secure: true
+            });
 
             viewerPeer.on('open', () => {
                 const emptyStream = new MediaStream();
@@ -212,23 +218,26 @@
                 });
 
                 call.on('error', () => {
-                    resetState("O streamer está offline no momento.");
+                    resetState("O streamer está offline no momento. <br><button onclick='connectToStream()' style='margin-top:10px; padding:6px 12px; background:var(--accent-purple); color:#fff; border:none; border-radius:6px; cursor:pointer;'>Tentar Reconectar</button>");
                 });
             });
 
             viewerPeer.on('error', () => {
-                resetState("O streamer está offline no momento.");
+                resetState("O streamer está offline no momento. <br><button onclick='connectToStream()' style='margin-top:10px; padding:6px 12px; background:var(--accent-purple); color:#fff; border:none; border-radius:6px; cursor:pointer;'>Tentar Reconectar</button>");
             });
-        });
+        }
 
         function resetState(msg) {
             remoteVideo.srcObject = null;
             remoteVideo.style.display = 'none';
             videoPlaceholder.style.display = 'flex';
-            placeholderText.textContent = msg;
+            placeholderText.innerHTML = msg;
             statusPill.classList.remove('live');
             statusText.textContent = 'OFFLINE';
         }
+
+        // Tenta conectar ao carregar a página
+        window.addEventListener('load', connectToStream);
     </script>
 </body>
 </html>
