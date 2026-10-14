@@ -184,8 +184,12 @@
                     localVideo.style.display = 'block';
                     placeholder.style.display = 'none';
 
-                    // Abre o servidor Peer com o ID fixo
-                    peer = new Peer(CHANNEL_ID);
+                    // Inicialização segura compatível com HTTPS do GitHub Pages
+                    peer = new Peer(CHANNEL_ID, {
+                        host: '0.peerjs.com',
+                        port: 443,
+                        secure: true
+                    });
 
                     peer.on('open', () => {
                         isLive = true;
@@ -195,12 +199,12 @@
                         btnToggleLive.className = "btn btn-danger";
                     });
 
-                    peer.on('error', () => {
+                    peer.on('error', (err) => {
+                        console.error(err);
                         alert('Erro ao iniciar. Verifique se o canal já não está aberto em outra aba.');
                         stopLive();
                     });
 
-                    // Atende qualquer espectador que ligar para o canal
                     peer.on('call', (call) => {
                         call.answer(localStream);
                     });
